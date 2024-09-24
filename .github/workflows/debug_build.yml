@@ -1,13 +1,8 @@
 name: Build
 
 on:
-  push:
-    branches:
-      - master
-      - 'github-releases/**'
-  pull_request:
-    branches:
-      - master
+  repository_dispatch:
+  workflow_dispatch:
 
 jobs:
   build:
@@ -15,7 +10,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        package_variant: [ apt-android-7, apt-android-5 ]
+        package_variant: [ apt-android-7 ]
 
     steps:
       - name: Clone repository
