@@ -1,13 +1,8 @@
 name: Build
 
 on:
-  push:
-    branches:
-      - master
-      - 'github-releases/**'
-  pull_request:
-    branches:
-      - master
+  repository_dispatch:
+  workflow_dispatch:
 
 jobs:
   build:
