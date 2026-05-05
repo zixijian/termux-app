@@ -255,6 +255,7 @@ public final class TerminalEmulator {
 
     /** Current {@link TextStyle} effect. */
     int mEffect;
+    private boolean mTextBlinkVisible = true;
 
     /**
      * The number of scrolled lines since last calling {@link #clearScrollCounter()}. Used for moving selection up along
@@ -2533,6 +2534,13 @@ public final class TerminalEmulator {
         mAutoScrollDisabled = !mAutoScrollDisabled;
     }
 
+    public void setTextBlinkVisible(boolean visible) {
+        mTextBlinkVisible = visible;
+    }
+
+    public boolean isTextBlinkVisible() {
+        return mTextBlinkVisible;
+    }
 
     /** Reset terminal state so user can interact with it regardless of present state. */
     public void reset() {
