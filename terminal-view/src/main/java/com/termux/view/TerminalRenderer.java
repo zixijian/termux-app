@@ -218,7 +218,7 @@ public final class TerminalRenderer {
 
         if ((effect & TextStyle.CHARACTER_ATTRIBUTE_INVISIBLE) == 0) {
             // Skip drawing if text has blink attribute and blink is currently hidden
-	  if (blink && !mRenderer.isTextBlinkVisible()) {
+	  if (blink && !isTextBlinkVisible()) {
 		// Text is blinking and should be hidden in this frame - skip drawing
 	  } else {
 	    if (dim) {

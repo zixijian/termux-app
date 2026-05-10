@@ -67,6 +67,7 @@ public final class TerminalView extends View {
     public static final int TERMINAL_CURSOR_BLINK_RATE_MAX = 2000;
     private Handler mTextBlinkHandler;
     private TextBlinkRunnable mTextBlinkRunnable;
+    private boolean mBlinkVisible = true;
     public static final int TEXT_BLINK_RATE = 500; 
 
     /** The top row of text to display. Ranges from -activeTranscriptRows to 0. */
@@ -1340,6 +1341,9 @@ public final class TerminalView extends View {
                 mTerminalCursorBlinkerHandler.postDelayed(this, mBlinkRate);
             }
         }
+    }
+
+    private class TextBlinkRunnable implements Runnable {
         @Override
         public void run() {
             try {
