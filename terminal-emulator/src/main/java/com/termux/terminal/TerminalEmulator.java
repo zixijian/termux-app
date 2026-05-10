@@ -2544,6 +2544,31 @@ public final class TerminalEmulator {
 
     /** Reset terminal state so user can interact with it regardless of present state. */
     public void reset() {
+        if (mMainBuffer != null) {
+            for (int i = 0; i < mMainBuffer.mTotalRows; i++) {
+                TerminalRow line = mMainBuffer.mLines[i];
+                if (line != null) {
+                    for (int j = 0; j < line.mStyle.length; j++) {
+                        if ((line.mStyle[j] & TextStyle.CHARACTER_ATTRIBUTE_BLINK) != 0) {
+                            line.mStyle[j] &= ~TextStyle.CHARACTER_ATTRIBUTE_BLINK;
+                        }
+                    }
+                }
+            }
+        }
+        if (mAltBuffer != null) {
+            for (int i = 0; i < mAltBuffer.mTotalRows; i++) {
+                TerminalRow line = mAltBuffer.mLines[i];
+                if (line != null) {
+                    for (int j = 0; j < line.mStyle.length; j++) {
+                        if ((line.mStyle[j] & TextStyle.CHARACTER_ATTRIBUTE_BLINK) != 0) {
+                            line.mStyle[j] &= ~TextStyle.CHARACTER_ATTRIBUTE_BLINK;
+                        }
+                    }
+                }
+            }
+        }
+
         setCursorStyle();
         mArgIndex = 0;
         mContinueSequence = false;
@@ -2553,6 +2578,7 @@ public final class TerminalEmulator {
         mBottomMargin = mRows;
         mRightMargin = mColumns;
         mAboutToAutoWrap = false;
+        mEffect = 0;
         mForeColor = mSavedStateMain.mSavedForeColor = mSavedStateAlt.mSavedForeColor = TextStyle.COLOR_INDEX_FOREGROUND;
         mBackColor = mSavedStateMain.mSavedBackColor = mSavedStateAlt.mSavedBackColor = TextStyle.COLOR_INDEX_BACKGROUND;
         setDefaultTabStops();
