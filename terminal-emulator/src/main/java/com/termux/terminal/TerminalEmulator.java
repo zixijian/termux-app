@@ -2542,32 +2542,27 @@ public final class TerminalEmulator {
         return mTextBlinkVisible;
     }
 
+    /**
+     * Clear the blink attribute from every cell in the given buffer.
+     */
+    private void clearBlinkFromBuffer(TerminalBuffer buffer) {
+        if (buffer == null) return;
+        for (int i = 0; i < buffer.mTotalRows; i++) {
+            TerminalRow line = buffer.mLines[i];
+            if (line != null) {
+                for (int j = 0; j < line.mStyle.length; j++) {
+                    if ((line.mStyle[j] & TextStyle.CHARACTER_ATTRIBUTE_BLINK) != 0) {
+                        line.mStyle[j] &= ~TextStyle.CHARACTER_ATTRIBUTE_BLINK;
+                    }
+                }
+            }
+        }
+    }
+
     /** Reset terminal state so user can interact with it regardless of present state. */
     public void reset() {
-        if (mMainBuffer != null) {
-            for (int i = 0; i < mMainBuffer.mTotalRows; i++) {
-                TerminalRow line = mMainBuffer.mLines[i];
-                if (line != null) {
-                    for (int j = 0; j < line.mStyle.length; j++) {
-                        if ((line.mStyle[j] & TextStyle.CHARACTER_ATTRIBUTE_BLINK) != 0) {
-                            line.mStyle[j] &= ~TextStyle.CHARACTER_ATTRIBUTE_BLINK;
-                        }
-                    }
-                }
-            }
-        }
-        if (mAltBuffer != null) {
-            for (int i = 0; i < mAltBuffer.mTotalRows; i++) {
-                TerminalRow line = mAltBuffer.mLines[i];
-                if (line != null) {
-                    for (int j = 0; j < line.mStyle.length; j++) {
-                        if ((line.mStyle[j] & TextStyle.CHARACTER_ATTRIBUTE_BLINK) != 0) {
-                            line.mStyle[j] &= ~TextStyle.CHARACTER_ATTRIBUTE_BLINK;
-                        }
-                    }
-                }
-            }
-        }
+        clearBlinkFromBuffer(mMainBuffer);
+        clearBlinkFromBuffer(mAltBuffer);
 
         setCursorStyle();
         mArgIndex = 0;
