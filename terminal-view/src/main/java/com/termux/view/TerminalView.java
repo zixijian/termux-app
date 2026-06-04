@@ -65,6 +65,10 @@ public final class TerminalView extends View {
     private boolean mCursorInvisibleIgnoreOnce;
     public static final int TERMINAL_CURSOR_BLINK_RATE_MIN = 100;
     public static final int TERMINAL_CURSOR_BLINK_RATE_MAX = 2000;
+    private Handler mTextBlinkHandler;
+    private TextBlinkRunnable mTextBlinkRunnable;
+    private boolean mBlinkVisible = true;
+    public static final int TEXT_BLINK_RATE = 500; 
 
     /** The top row of text to display. Ranges from -activeTranscriptRows to 0. */
     int mTopRow;
@@ -259,6 +263,7 @@ public final class TerminalView extends View {
         mScroller = new Scroller(context);
         AccessibilityManager am = (AccessibilityManager) context.getSystemService(Context.ACCESSIBILITY_SERVICE);
         mAccessibilityEnabled = am.isEnabled();
+        startTextBlinker();
     }
 
 
@@ -1338,7 +1343,42 @@ public final class TerminalView extends View {
         }
     }
 
+    private class TextBlinkRunnable implements Runnable {
+        @Override
+        public void run() {
+            try {
+                if (mEmulator != null && mRenderer != null) {
+                    // 切换文本闪烁状态
+                    mBlinkVisible = !mBlinkVisible;
+                    mRenderer.setTextBlinkVisible(mBlinkVisible);
+                    invalidate();
+                }
+            } finally {
+                // 在 TEXT_BLINK_RATE 毫秒后重新调用
+                if (mTextBlinkHandler != null) {
+                    mTextBlinkHandler.postDelayed(this, TEXT_BLINK_RATE);
+                }
+            }
+        }
+    }
 
+        
+    /**
+     * Start the text blink timer for blinking text effect (CSI 5m)
+     */
+    private void startTextBlinker() {
+        if (mTextBlinkHandler == null) {
+            mTextBlinkHandler = new Handler(Looper.getMainLooper());
+        }
+        
+        // Stop any existing blink runnable first
+        if (mTextBlinkRunnable != null) {
+            mTextBlinkHandler.removeCallbacks(mTextBlinkRunnable);
+        }
+        
+        mTextBlinkRunnable = new TextBlinkRunnable();
+        mTextBlinkRunnable.run();
+    }
 
     /**
      * Define functions required for text selection and its handles.

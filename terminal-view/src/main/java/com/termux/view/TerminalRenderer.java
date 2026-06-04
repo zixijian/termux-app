@@ -32,6 +32,7 @@ public final class TerminalRenderer {
     final int mFontLineSpacingAndAscent;
 
     private final float[] asciiMeasures = new float[127];
+    private boolean mTextBlinkVisible = true;
 
     public TerminalRenderer(int textSize, Typeface typeface) {
         mTextSize = textSize;
@@ -162,7 +163,9 @@ public final class TerminalRenderer {
         int foreColor = TextStyle.decodeForeColor(textStyle);
         final int effect = TextStyle.decodeEffect(textStyle);
         int backColor = TextStyle.decodeBackColor(textStyle);
-        final boolean bold = (effect & (TextStyle.CHARACTER_ATTRIBUTE_BOLD | TextStyle.CHARACTER_ATTRIBUTE_BLINK)) != 0;
+        // final boolean bold = (effect & (TextStyle.CHARACTER_ATTRIBUTE_BOLD | TextStyle.CHARACTER_ATTRIBUTE_BLINK)) != 0;
+	final boolean bold = (effect & TextStyle.CHARACTER_ATTRIBUTE_BOLD) != 0;
+	final boolean blink = (effect & TextStyle.CHARACTER_ATTRIBUTE_BLINK) != 0;
         final boolean underline = (effect & TextStyle.CHARACTER_ATTRIBUTE_UNDERLINE) != 0;
         final boolean italic = (effect & TextStyle.CHARACTER_ATTRIBUTE_ITALIC) != 0;
         final boolean strikeThrough = (effect & TextStyle.CHARACTER_ATTRIBUTE_STRIKETHROUGH) != 0;
@@ -214,7 +217,11 @@ public final class TerminalRenderer {
         }
 
         if ((effect & TextStyle.CHARACTER_ATTRIBUTE_INVISIBLE) == 0) {
-            if (dim) {
+            // Skip drawing if text has blink attribute and blink is currently hidden
+	  if (blink && !isTextBlinkVisible()) {
+		// Text is blinking and should be hidden in this frame - skip drawing
+	  } else {
+	    if (dim) {
                 int red = (0xFF & (foreColor >> 16));
                 int green = (0xFF & (foreColor >> 8));
                 int blue = (0xFF & foreColor);
@@ -235,12 +242,21 @@ public final class TerminalRenderer {
             // The text alignment is the default Paint.Align.LEFT.
             canvas.drawTextRun(text, startCharIndex, runWidthChars, startCharIndex, runWidthChars, left, y - mFontLineSpacingAndAscent, false, mTextPaint);
         }
+	}
 
         if (savedMatrix) canvas.restore();
     }
 
     public float getFontWidth() {
         return mFontWidth;
+    }
+
+    public void setTextBlinkVisible(boolean visible) {
+        mTextBlinkVisible = visible;
+    }
+
+    public boolean isTextBlinkVisible() {
+        return mTextBlinkVisible;
     }
 
     public int getFontLineSpacing() {
