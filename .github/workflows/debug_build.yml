@@ -4,10 +4,13 @@ on:
   push:
     branches:
       - master
+      - EA
       - 'github-releases/**'
   pull_request:
     branches:
       - master
+      - EA
+  workflow_dispatch:
 
 jobs:
   build:
