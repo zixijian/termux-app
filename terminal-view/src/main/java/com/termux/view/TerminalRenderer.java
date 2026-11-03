@@ -36,6 +36,7 @@ public final class TerminalRenderer {
     final int mFontLineSpacingAndAscent;
 
     private final float[] asciiMeasures = new float[127];
+    private boolean mTextBlinkVisible = true;
 
     public TerminalRenderer(int textSize, Typeface typeface) {
         mTextSize = textSize;
@@ -104,6 +105,16 @@ public final class TerminalRenderer {
                 final int codePoint = charIsHighsurrogate ? Character.toCodePoint(charAtIndex, line[currentCharIndex + 1]) : charAtIndex;
                 final long style = lineObject.getStyle(column);
                 if (TextStyle.isTerminalBitmap(style)) {
+                    // flush the text run pending to the left of this image cell
+                    if (column != 0 && column != lastRunStartColumn) {
+                        final int columnWidthSinceLastRun = column - lastRunStartColumn;
+                        final int charsSinceLastRun = currentCharIndex - lastRunStartIndex;
+                        int cursorColor = lastRunInsideCursor ? mEmulator.mColors.mCurrentColors[TextStyle.COLOR_INDEX_CURSOR] : 0;
+                        boolean invertCursorTextColor = lastRunInsideCursor && cursorShape == TerminalEmulator.TERMINAL_CURSOR_STYLE_BLOCK;
+                        drawTextRun(canvas, line, palette, heightOffset, lastRunStartColumn, columnWidthSinceLastRun,
+                            lastRunStartIndex, charsSinceLastRun, measuredWidthForRun,
+                            cursorColor, cursorShape, lastRunStyle, reverseVideo || invertCursorTextColor || lastRunInsideSelection);
+                    }
                     Bitmap bitmap = mEmulator.getScreen().getSixelBitmap(style);
                     if (bitmap != null) {
                         float left = column * mFontWidth;
@@ -113,13 +124,14 @@ public final class TerminalRenderer {
                         canvas.drawBitmap(bitmap, bitmapSrcRect, bitmapDestRect, null);
                     }
                     column += 1;
+                    currentCharIndex += charsForCodePoint;
                     measuredWidthForRun = 0.f;
                     lastRunStyle = 0;
                     lastRunInsideCursor = false;
-                    lastRunStartColumn = column + 1;
+                    lastRunInsideSelection = false;
+                    lastRunStartColumn = column;
                     lastRunStartIndex = currentCharIndex;
                     lastRunFontWidthMismatch = false;
-                    currentCharIndex += charsForCodePoint;
                     continue;
                 }
                 final int codePointWcWidth = WcWidth.width(codePoint);
@@ -185,7 +197,9 @@ public final class TerminalRenderer {
         int foreColor = TextStyle.decodeForeColor(textStyle);
         final int effect = TextStyle.decodeEffect(textStyle);
         int backColor = TextStyle.decodeBackColor(textStyle);
-        final boolean bold = (effect & (TextStyle.CHARACTER_ATTRIBUTE_BOLD | TextStyle.CHARACTER_ATTRIBUTE_BLINK)) != 0;
+        // final boolean bold = (effect & (TextStyle.CHARACTER_ATTRIBUTE_BOLD | TextStyle.CHARACTER_ATTRIBUTE_BLINK)) != 0;
+	final boolean bold = (effect & TextStyle.CHARACTER_ATTRIBUTE_BOLD) != 0;
+	final boolean blink = (effect & TextStyle.CHARACTER_ATTRIBUTE_BLINK) != 0;
         final boolean underline = (effect & TextStyle.CHARACTER_ATTRIBUTE_UNDERLINE) != 0;
         final boolean italic = (effect & TextStyle.CHARACTER_ATTRIBUTE_ITALIC) != 0;
         final boolean strikeThrough = (effect & TextStyle.CHARACTER_ATTRIBUTE_STRIKETHROUGH) != 0;
@@ -237,7 +251,11 @@ public final class TerminalRenderer {
         }
 
         if ((effect & TextStyle.CHARACTER_ATTRIBUTE_INVISIBLE) == 0) {
-            if (dim) {
+            // Skip drawing if text has blink attribute and blink is currently hidden
+	  if (blink && !isTextBlinkVisible()) {
+		// Text is blinking and should be hidden in this frame - skip drawing
+	  } else {
+	    if (dim) {
                 int red = (0xFF & (foreColor >> 16));
                 int green = (0xFF & (foreColor >> 8));
                 int blue = (0xFF & foreColor);
@@ -262,12 +280,21 @@ public final class TerminalRenderer {
                 canvas.drawText(text, startCharIndex, runWidthChars, left, y - mFontLineSpacingAndAscent, mTextPaint);
             }
         }
+	}
 
         if (savedMatrix) canvas.restore();
     }
 
     public float getFontWidth() {
         return mFontWidth;
+    }
+
+    public void setTextBlinkVisible(boolean visible) {
+        mTextBlinkVisible = visible;
+    }
+
+    public boolean isTextBlinkVisible() {
+        return mTextBlinkVisible;
     }
 
     public int getFontLineSpacing() {

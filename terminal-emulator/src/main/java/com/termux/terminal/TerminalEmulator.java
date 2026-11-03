@@ -420,6 +420,7 @@ public final class TerminalEmulator {
 
     /** Current {@link TextStyle} effect. */
     int mEffect;
+    private boolean mTextBlinkVisible = true;
 
     /**
      * The number of scrolled lines since last calling {@link #clearScrollCounter()}. Used for moving selection up along
@@ -3469,6 +3470,14 @@ public final class TerminalEmulator {
 
     public void toggleAutoScrollDisabled() {
         mAutoScrollDisabled = !mAutoScrollDisabled;
+    }
+
+    public void setTextBlinkVisible(boolean visible) {
+        mTextBlinkVisible = visible;
+    }
+
+    public boolean isTextBlinkVisible() {
+        return mTextBlinkVisible;
     }
 
 
