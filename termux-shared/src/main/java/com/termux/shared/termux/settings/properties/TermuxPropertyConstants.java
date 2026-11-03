@@ -80,9 +80,6 @@ import java.util.Set;
  *
  * - 0.18.0 (2022-06-13)
  *      - Add `KEY_DISABLE_FILE_SHARE_RECEIVER` and `KEY_DISABLE_FILE_VIEW_RECEIVER`.
- * 
- * - 0.19.0 (2022-11-04)
- *      - Add `KEY_BACKGROUND_OVERLAY_COLOR` and `DEFAULT_IVALUE_BACKGROUND_OVERLAY_COLOR`
  */
 
 /**
@@ -329,7 +326,7 @@ public final class TermuxPropertyConstants {
     /** Defines the key for extra keys */
     public static final String KEY_EXTRA_KEYS =  "extra-keys"; // Default: "extra-keys"
     //public static final String DEFAULT_IVALUE_EXTRA_KEYS = "[[ESC, TAB, CTRL, ALT, {key: '-', popup: '|'}, DOWN, UP]]"; // Single row
-    public static final String DEFAULT_IVALUE_EXTRA_KEYS = "[['ESC',{key: 'DRAWER', popup: 'PASTE'},'SCROLL','HOME','UP','END','PGUP'], ['TAB','CTRL','ALT','LEFT','DOWN','RIGHT','PGDN']]"; // Double row
+    public static final String DEFAULT_IVALUE_EXTRA_KEYS = "[['ESC','/',{key: '-', popup: '|'},'HOME','UP','END','PGUP'], ['TAB','CTRL','ALT','LEFT','DOWN','RIGHT','PGDN']]"; // Double row
 
     /** Defines the key for extra keys style */
     public static final String KEY_EXTRA_KEYS_STYLE =  "extra-keys-style"; // Default: "extra-keys-style"
@@ -387,12 +384,6 @@ public final class TermuxPropertyConstants {
 
 
 
-    /** Defines the key for background overlay color */
-    public static final String KEY_BACKGROUND_OVERLAY_COLOR = "background-overlay-color"; // Default: "background-overlay-color
-    public static final int DEFAULT_IVALUE_BACKGROUND_OVERLAY_COLOR = 0x59000000;
-
-
-
 
 
     /** Defines the set for keys loaded by termux
@@ -439,8 +430,7 @@ public final class TermuxPropertyConstants {
         KEY_EXTRA_KEYS_STYLE,
         KEY_NIGHT_MODE,
         KEY_SOFT_KEYBOARD_TOGGLE_BEHAVIOUR,
-        KEY_VOLUME_KEYS_BEHAVIOUR,
-        KEY_BACKGROUND_OVERLAY_COLOR
+        KEY_VOLUME_KEYS_BEHAVIOUR
     ));
 
     /** Defines the set for keys loaded by termux that have default boolean behaviour with false as default.
